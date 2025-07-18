@@ -1,0 +1,50 @@
+<svg width="3200" height="800" viewBox="0 0 3200 800" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bubbleGradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#e75480" />
+      <stop offset="100%" stop-color="#a259ff" />
+    </linearGradient>
+    <linearGradient id="bubbleGradient2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00cfff" />
+      <stop offset="100%" stop-color="#3d60e6" />
+    </linearGradient>
+    <linearGradient id="bubbleGradient3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#66ff66" />
+      <stop offset="100%" stop-color="#00e676" />
+    </linearGradient>
+  </defs>
+
+  <!-- Main Chat Bubble: Center Left -->
+  <ellipse cx="530" cy="400" rx="280" ry="240" fill="url(#bubbleGradient1)" opacity="0.95" />
+
+  <!-- Left Chat Bubble: Blue -->
+  <ellipse cx="220" cy="560" rx="170" ry="130" fill="url(#bubbleGradient2)" opacity="0.85" />
+
+  <!-- Right Chat Bubble: Green -->
+  <ellipse cx="840" cy="560" rx="170" ry="130" fill="url(#bubbleGradient3)" opacity="0.85" />
+
+  <!-- Speech tails -->
+  <polygon points="490,680 530,760 570,680" fill="#00e676" opacity="0.85" />
+  <polygon points="90,700 115,765 150,695" fill="#3d60e6" opacity="0.85" />
+
+  <!-- Red Bubble with dots (top right of main bubble) -->
+  <ellipse cx="1130" cy="190" rx="98" ry="72" fill="#ff3c6a" />
+  <circle cx="1092" cy="190" r="12.6" fill="#fff" />
+  <circle cx="1130" cy="190" r="12.6" fill="#fff" />
+  <circle cx="1168" cy="190" r="12.6" fill="#fff" />
+
+  <!-- Blue Bubble with dots (bottom left) -->
+  <ellipse cx="85" cy="700" rx="64" ry="45" fill="#0066cc" />
+  <circle cx="59" cy="700" r="8.2" fill="#fff" />
+  <circle cx="85" cy="700" r="8.2" fill="#fff" />
+  <circle cx="111" cy="700" r="8.2" fill="#fff" />
+  
+  <!-- Logo Name: Say Hi! - aligned in a row, vertically centered -->
+  <text x="1300" y="520"
+        font-size="384"
+        font-weight="bold"
+        fill="#111"
+        font-family="Arial, Helvetica, sans-serif"
+        dominant-baseline="middle"
+        >Say Hi!</text>
+</svg>

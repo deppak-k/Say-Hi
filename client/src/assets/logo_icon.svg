@@ -1,0 +1,41 @@
+<svg width="1500" height="1500" viewBox="0 0 1500 1500" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bubbleGradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#e75480" />
+      <stop offset="100%" stop-color="#a259ff" />
+    </linearGradient>
+    <linearGradient id="bubbleGradient2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00cfff" />
+      <stop offset="100%" stop-color="#3d60e6" />
+    </linearGradient>
+    <linearGradient id="bubbleGradient3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#66ff66" />
+      <stop offset="100%" stop-color="#00e676" />
+    </linearGradient>
+  </defs>
+
+  <!-- Main Chat Bubble -->
+  <ellipse cx="750" cy="600" rx="260" ry="220" fill="url(#bubbleGradient1)" opacity="0.95" />
+
+  <!-- Left Chat Bubble -->
+  <ellipse cx="525" cy="800" rx="165" ry="130" fill="url(#bubbleGradient2)" opacity="0.85" />
+
+  <!-- Right Chat Bubble -->
+  <ellipse cx="975" cy="800" rx="165" ry="130" fill="url(#bubbleGradient3)" opacity="0.85" />
+
+  <!-- Speech tails -->
+  <polygon points="710,850 750,925 790,850" fill="#00e676" opacity="0.85" />
+  <polygon points="450,920 490,1020 520,960" fill="#3d60e6" opacity="0.85" />
+
+  <!-- Red Bubble with dots -->
+  <ellipse cx="1050" cy="300" rx="95" ry="70" fill="#ff3c6a" />
+  <circle cx="1015" cy="300" r="12" fill="#fff" />
+  <circle cx="1050" cy="300" r="12" fill="#fff" />
+  <circle cx="1085" cy="300" r="12" fill="#fff" />
+
+  <!-- Blue Bubble with dots -->
+  <ellipse cx="420" cy="1000" rx="65" ry="45" fill="#0066cc" />
+  <circle cx="380" cy="1000" r="8" fill="#fff" />
+  <circle cx="420" cy="1000" r="8" fill="#fff" />
+  <circle cx="460" cy="1000" r="8" fill="#fff" />
+</svg>
