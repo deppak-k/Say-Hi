@@ -77,10 +77,10 @@ export const ChatProvider = ({ children }) => {
         if(socket) socket.off("newMessage");
     }
 
-    useEffect(()=>{
+    useEffect(() => {
         subscribeToMessages();
-        return ()=> unsubscribeFromMessages();
-    },[socket])
+        return () => unsubscribeFromMessages();
+    }, [socket, selectedUser])
 
     const value = {
         messages, users, selectedUser, getRecentChats, getMessages, sendMessage, setSelectedUser, unseenMessages, setUnseenMessages
