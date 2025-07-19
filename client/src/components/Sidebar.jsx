@@ -1,12 +1,15 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useState, useRef } from 'react';
 import assets from '../assets/assets';
-import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 import { ChatContext } from '../../context/ChatContext';
+import { useNavigate } from 'react-router-dom';
 
 const Sidebar = () => {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef();
+  const navigate = useNavigate();
   const {
-    getUsers,
+    getRecentChats,
     users,
     selectedUser,
     setSelectedUser,
@@ -14,24 +17,47 @@ const Sidebar = () => {
     setUnseenMessages,
   } = useContext(ChatContext);
 
-  const { logout, onlineUsers } = useContext(AuthContext);
+  const { logout, axios, onlineUsers, authUser } = useContext(AuthContext);
   const [input, setInput] = useState('');
-  const [menuOpen, setMenuOpen] = useState(false);
-  const navigate = useNavigate();
-  const menuRef = useRef();
-
-  const filteredUsers = input
-  ? users.filter((user) => {
-      const nameMatch = user.fullName?.toLowerCase().includes(input.toLowerCase());
-      const emailMatch = user.email?.toLowerCase().includes(input.toLowerCase());
-      return nameMatch || emailMatch;
-    })
-  : users;
-
+  const [searchResults, setSearchResults] = useState([]);
+  const [showOnline, setShowOnline] = useState(false);
 
   useEffect(() => {
-    getUsers();
-  }, [onlineUsers]);
+    const fetchSearchResults = async () => {
+      if (!input.trim()) {
+        setSearchResults([]);
+        return;
+      }
+      try {
+        const { data } = await axios.get(`/api/messages/users?search=${encodeURIComponent(input)}`);
+        if (data.success) {
+          setSearchResults(data.users);
+        }
+      } catch (err) {
+        console.error('Search error:', err);
+        setSearchResults([]);
+      }
+    };
+    fetchSearchResults();
+  }, [input, axios]);
+
+  // Show recent chats or search results
+  const filteredUsers = !input.trim()
+    ? (showOnline
+        ? users.filter(user => onlineUsers.includes(user._id) && user._id !== authUser._id)
+        : users)
+    : searchResults;
+
+  // Handle user click
+  const handleUserClick = (user) => {
+    setSelectedUser(user);
+    setUnseenMessages((prev) => ({ ...prev, [user._id]: 0 }));
+    if (input.trim()) setInput('');
+  };
+
+  useEffect(() => {
+    getRecentChats();
+  }, []);
 
   return (
     <div
@@ -42,7 +68,14 @@ const Sidebar = () => {
       <div className="pb-5">
         <div className="flex justify-between items-center">
           <img src={assets.logo} alt="logo" className="max-w-40" />
-
+          {/* Toggle for online/recent */}
+          <button
+            className={`ml-3 px-3 py-1 rounded-full text-xs font-medium border ${showOnline ? 'bg-violet-100 text-violet-700 border-violet-300' : 'bg-gray-100 text-gray-700 border-gray-300'} transition`}
+            onClick={() => setShowOnline((prev) => !prev)}
+            title={showOnline ? 'Show Recent Chats' : 'Show Online Users'}
+          >
+            {showOnline ? 'Recent Chats' : 'Online Users'}
+          </button>
           {/* Menu icon and dropdown */}
           <div className="relative py-2" ref={menuRef}>
             <img
@@ -76,7 +109,6 @@ const Sidebar = () => {
             )}
           </div>
         </div>
-
         {/* Search input */}
         <div className="bg-gray-100 rounded-full flex items-center gap-2 py-3 px-4 mt-5">
           <img src={assets.search_icon} alt="Search" className="w-3" />
@@ -89,15 +121,14 @@ const Sidebar = () => {
         </div>
       </div>
 
-      {/* User list */}
       <div className="flex flex-col">
-        {filteredUsers.map((user, index) => (
+        {filteredUsers.length === 0 && input.trim() && (
+          <div className="text-center text-gray-400 py-4">No users found</div>
+        )}
+        {filteredUsers.map((user) => (
           <div
-            onClick={() => {
-              setSelectedUser(user);
-              setUnseenMessages((prev) => ({ ...prev, [user._id]: 0 }));
-            }}
-            key={index}
+            onClick={() => handleUserClick(user)}
+            key={user._id}
             className={`relative flex items-center gap-2 p-2 pl-4 rounded cursor-pointer max-sm:text-sm ${
               selectedUser?._id === user._id && 'bg-gray-200'
             }`}
@@ -108,7 +139,9 @@ const Sidebar = () => {
               className="w-[35px] aspect-[1/1] rounded-full"
             />
             <div className="flex flex-col leading-5">
-              <p>{user.fullName}</p>
+              <span className="font-medium text-black text-sm">
+                {user.fullName}
+              </span>
               {onlineUsers.includes(user._id) ? (
                 <span className="text-green-500 text-xs">Online</span>
               ) : (
@@ -116,9 +149,9 @@ const Sidebar = () => {
               )}
             </div>
             {unseenMessages[user._id] > 0 && (
-              <p className="absolute top-4 right-4 text-xs h-5 w-5 flex justify-center items-center rounded-full bg-blue-500 text-white">
+              <span className="ml-auto bg-blue-500 text-white text-xs rounded-full px-2">
                 {unseenMessages[user._id]}
-              </p>
+              </span>
             )}
           </div>
         ))}

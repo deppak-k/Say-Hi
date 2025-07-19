@@ -1,23 +1,21 @@
-import { createContext, useContext, useEffect, useState } from "react";
+// ChatContext.jsx - manages chat state and functions
+import React, { createContext, useState, useContext, useEffect } from 'react';
 import { AuthContext } from "./AuthContext";
 import toast from "react-hot-toast";
 
-
 export const ChatContext = createContext();
 
-export const ChatProvider = ({ children })=>{
-
-    const [messages, setMessages] = useState([]);
+export const ChatProvider = ({ children }) => {
     const [users, setUsers] = useState([]);
-    const [selectedUser, setSelectedUser] = useState(null)
-    const [unseenMessages, setUnseenMessages] = useState({})
-
+    const [selectedUser, setSelectedUser] = useState(null);
+    const [unseenMessages, setUnseenMessages] = useState({});
+    const [messages, setMessages] = useState([]);
     const {socket, axios} = useContext(AuthContext);
 
-    // function to get all users for sidebar
-    const getUsers = async () =>{
+    // function to get recent chats for sidebar
+    const getRecentChats = async () =>{
         try {
-            const { data } = await axios.get("/api/messages/users");
+            const { data } = await axios.get("/api/messages/recent");
             if (data.success) {
                 setUsers(data.users)
                 setUnseenMessages(data.unseenMessages)
@@ -45,6 +43,8 @@ export const ChatProvider = ({ children })=>{
             const {data} = await axios.post(`/api/messages/send/${selectedUser._id}`, messageData);
             if(data.success){
                 setMessages((prevMessages)=>[...prevMessages, data.newMessage])
+                // Refresh recent chats after sending a message
+                getRecentChats();
             }else{
                 toast.error(data.message);
             }
@@ -62,6 +62,8 @@ export const ChatProvider = ({ children })=>{
                 newMessage.seen = true;
                 setMessages((prevMessages)=> [...prevMessages, newMessage]);
                 axios.put(`/api/messages/mark/${newMessage._id}`);
+                // Refresh recent chats after receiving a message
+                getRecentChats();
             }else{
                 setUnseenMessages((prevUnseenMessages)=>({
                     ...prevUnseenMessages, [newMessage.senderId] : prevUnseenMessages[newMessage.senderId] ? prevUnseenMessages[newMessage.senderId] + 1 : 1
@@ -78,10 +80,10 @@ export const ChatProvider = ({ children })=>{
     useEffect(()=>{
         subscribeToMessages();
         return ()=> unsubscribeFromMessages();
-    },[socket, selectedUser])
+    },[socket])
 
     const value = {
-        messages, users, selectedUser, getUsers, getMessages, sendMessage, setSelectedUser, unseenMessages, setUnseenMessages
+        messages, users, selectedUser, getRecentChats, getMessages, sendMessage, setSelectedUser, unseenMessages, setUnseenMessages
     }
 
     return (

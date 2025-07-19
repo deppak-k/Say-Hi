@@ -4,11 +4,24 @@ import cloudinary from "../lib/cloudinary.js"
 import { io, userSocketMap } from "../server.js";
 
 
-// Get all users except the logged in user
 export const getUsersForSidebar = async (req, res)=>{
     try {
-        const userId = req.user._id;
-        const filteredUsers = await User.find({_id: {$ne: userId}}).select("-password");
+        const userId = req.user?._id;
+        const { search } = req.query;
+
+        let filteredUsers;
+        if (search && search.trim()) {
+            const searchRegex = new RegExp(search.trim(), 'i');
+            filteredUsers = await User.find({
+                _id: { $ne: userId },
+                $or: [
+                    { fullName: searchRegex },
+                    { email: searchRegex }
+                ]
+            }).select("-password");
+        } else {
+            filteredUsers = await User.find({ _id: { $ne: userId } }).select("-password");
+        }
 
         // Count number of messages not seen
         const unseenMessages = {}
@@ -21,10 +34,58 @@ export const getUsersForSidebar = async (req, res)=>{
         await Promise.all(promises);
         res.json({success: true, users: filteredUsers, unseenMessages})
     } catch (error) {
-        console.log(error.message);
+        console.error(error.message);
         res.json({success: false, message: error.message})
     }
 }
+
+export const getRecentChats = async (req, res) => {
+    try {
+        const userId = req.user._id;
+        // Find all messages where user is sender or receiver
+        const messages = await Message.find({
+            $or: [
+                { senderId: userId },
+                { receiverId: userId }
+            ]
+        }).sort({ updatedAt: -1, createdAt: -1 });
+
+        // Map to keep track of last message per user
+        const chatMap = new Map();
+        messages.forEach(msg => {
+            const otherUserId = msg.senderId.equals(userId) ? msg.receiverId.toString() : msg.senderId.toString();
+            // Only keep the first occurrence (latest message)
+            if (!chatMap.has(otherUserId)) {
+                chatMap.set(otherUserId, msg);
+            }
+        });
+        const recentUserIds = Array.from(chatMap.keys());
+
+        // Get user info for all recent chat users
+        const users = await User.find({ _id: { $in: recentUserIds } }).select("-password");
+
+        // Count unseen messages from each user
+        const unseenMessages = {};
+        await Promise.all(users.map(async (user) => {
+            const count = await Message.countDocuments({ senderId: user._id, receiverId: userId, seen: false });
+            if (count > 0) unseenMessages[user._id] = count;
+        }));
+
+        // Order users by last message time
+        users.sort((a, b) => {
+            const aId = a._id.toString();
+            const bId = b._id.toString();
+            const aTime = chatMap.get(aId)?.updatedAt || chatMap.get(aId)?.createdAt;
+            const bTime = chatMap.get(bId)?.updatedAt || chatMap.get(bId)?.createdAt;
+            return new Date(bTime) - new Date(aTime);
+        });
+
+        res.json({ success: true, users, unseenMessages });
+    } catch (error) {
+        console.error(error.message);
+        res.json({ success: false, message: error.message });
+    }
+};
 
 // Get all messages for selected user
 export const getMessages = async (req, res) =>{
@@ -44,7 +105,7 @@ export const getMessages = async (req, res) =>{
 
 
     } catch (error) {
-        console.log(error.message);
+        console.error(error.message);
         res.json({success: false, message: error.message})
     }
 }
@@ -56,7 +117,7 @@ export const markMessageAsSeen = async (req, res)=>{
         await Message.findByIdAndUpdate(id, {seen: true})
         res.json({success: true})
     } catch (error) {
-        console.log(error.message);
+        console.error(error.message);
         res.json({success: false, message: error.message})
     }
 }
@@ -89,7 +150,7 @@ export const sendMessage = async (req, res) =>{
         res.json({success: true, newMessage});
 
     } catch (error) {
-        console.log(error.message);
+        console.error(error.message);
         res.json({success: false, message: error.message})
     }
 }
