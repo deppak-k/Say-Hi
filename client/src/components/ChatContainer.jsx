@@ -67,10 +67,18 @@ const ChatContainer = () => {
             <span className="w-2 h-2 rounded-full bg-green-500"></span>
           )}
         </p>
+        {/* Desktop close button */}
         <img
           onClick={() => setSelectedUser(null)}
-          src={assets.arrow_icon}
-          alt=""
+          src={assets.close_icon}
+          alt="Close"
+          className="hidden md:block max-w-7 cursor-pointer"
+        />
+        {/* Mobile back arrow */}
+        <img
+          onClick={() => setSelectedUser(null)}
+          src={assets.close_icon}
+          alt="Close"
           className="md:hidden max-w-7 cursor-pointer"
         />
       </div>

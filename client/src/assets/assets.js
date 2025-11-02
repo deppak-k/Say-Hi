@@ -11,7 +11,7 @@ import profile_martin from './profile_martin.png'
 import search_icon from './search_icon.svg'
 import send_button from './send_button.svg'
 import menu_icon from './menu_icon.svg'
-import arrow_icon from './arrow_icon.png'
+import close_icon from './close_icon.svg'
 import code from './code.svg'
 import pic1 from './pic1.png'
 import pic2 from './pic2.png'
@@ -28,7 +28,7 @@ const assets = {
     search_icon,
     send_button,
     menu_icon,
-    arrow_icon,
+    close_icon,
     code,
     profile_martin
 }
